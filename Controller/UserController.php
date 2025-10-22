@@ -3,29 +3,57 @@
 class UserController
 {
 
-    public function createUser(array $data): User
+
+    public function getUser($id): void
     {
         $user = new User();
-        $user->create($data);
+        $result = $user->read($id);
 
-        if ($user) {
+        if ($result) {
             header("Location: /php-oop/index.php");
             exit();
         }
 
-        return $user;
+        echo "Failed to create user.";
     }
 
 
-
-    public function deleteUser(int $id): User
+    public function createUser(array $data): void
     {
         $user = new User();
-        $user->delete($id);
-        if ($user) {
+        $result = $user->create($data);
+
+        if ($result) {
             header("Location: /php-oop/index.php");
             exit();
         }
-        return $user;
+
+        echo "Failed to create user.";
+    }
+
+    public function deleteUser(int $id): void
+    {
+        $user = new User();
+        $result = $user->delete($id);
+
+        if ($result) {
+            header("Location: /php-oop/index.php");
+            exit();
+        }
+
+        echo "Failed to delete user.";
+    }
+
+    public function updateUser(int $id, array $data): void
+    {
+        $user = new User();
+        $result = $user->update($id, $data);
+
+        if ($result) {
+            header("Location: /php-oop/index.php");
+            exit();
+        }
+
+        echo "Failed to delete user.";
     }
 }

@@ -1,33 +1,73 @@
 <?php
 
-class User implements StorableInterface
+class User extends Model implements StorableInterface
 {
 
     use SoftDeletes;
 
-    private string $firstname, $lastname, $email, $contry, $password;
+    private string|int $id;
+    private string $fullname;
+    private string $email;
+    private string $country;
+    private string $password;
 
+    public array $users = [];
+    
+    /**
+     * @var string
+     */
 
-    public function __construct() {}
+    private const MODEL_NAME = 'users';
 
-    public function getName(): string
+    public function __construct()
     {
-        return $this->firstname . ' ' . $this->lastname;
+        $this->users = $this->getAll();
     }
 
-    public function getEmail(): string
+    public function getFullName(int $id): array|string
     {
-        return $this->email;
+        $user = $this->getCurrentUser($id);
+
+        if (!is_array($user)) {
+            return 'User not Found';
+        }
+
+        return $user['first_name'] . ' ' . $user['last_name'];
     }
 
-    public function getContry(): string
+    public function getCurrentUser(int $id): array|string
     {
-        return $this->contry;
+        $wanted_user = array_filter($this->users, fn($user) => $user['id'] == $id);
+        $user = reset($wanted_user);
+
+        return $user ?: 'User not Found';
+    }
+
+    public function getEmail(int $id): string
+    {
+        $user = $this->getCurrentUser($id);
+
+        if (!is_array($user)) {
+            return 'EMail not Found';
+        }
+
+        return $user['email'];
+    }
+
+    public function getCountry(int $id): string
+    {
+        $user = $this->getCurrentUser($id);
+
+        if (!is_array($user)) {
+            return 'User not Found';
+        }
+
+        return $user['country'];
     }
 
     public function getAll(): array
     {
-        $pdo = $this->establishConn();
+        $pdo = parent::establishConn();
 
         try {
             $statement = $pdo->query('SELECT * FROM users Where deleted_at IS NULL');
@@ -61,38 +101,32 @@ class User implements StorableInterface
         }
     }
 
-    public function read(int $id): array
+    public function read(string $model = 'users', int $id, string $message = 'Desired User is not Found'): mixed
     {
-        $pdo = $this->establishConn();
-
-        try {
-            $statement = $pdo->query("SELECT * FROM users WHERE id = $id AND deleted_at IS NULL");
-            $row = $statement->fetch(PDO::FETCH_ASSOC);
-
-            if (!$row) {
-                echo "User not found.";
-                return ['user' => 'Not Found'];
-            }
-
-            return $row;
-        } catch (PDOException $e) {
-            throw new RuntimeException('Query failed: ' . $e->getMessage());
-        }
+        return parent::read($model, $id, $message);
     }
+
 
     public function update(int $id, array $data): string
     {
-        return 'string';
+        $pdo = $this->establishConn();
+
+        $sql = "UPDATE users  SET first_name = :first_name, last_name = :last_name, email = :email, password = :password, country = :country, updated_at = NOW() WHERE id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':first_name' => $data['first_name'],
+            ':last_name' => $data['last_name'],
+            ':email' => $data['email'],
+            ':password' => $data['password'],
+            ':country' => $data['country'],
+            ':id' => $id,
+        ]);
+
+        return "User updated successfully.";
     }
 
     public function delete(int $id): mixed
     {
         return $this->softDelete($id);
-    }
-
-    private function establishConn()
-    {
-        $conn = new DatabaseConnection('php-oop');
-        return $conn->connect();
     }
 }

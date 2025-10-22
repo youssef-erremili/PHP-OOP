@@ -5,10 +5,12 @@ $dbconnec = new DatabaseConnection('php-oop');
 $dbconnec->connect();
 
 $users = new User();
-$tet = $users->getAll();
+$tt = $users->read('users', 17);
+
+
 ?>
 
-<!DOCTYPE html>
+<!DOCTYPE html>     
 <html lang="en">
 
 <head>
@@ -49,7 +51,13 @@ $tet = $users->getAll();
 <body>
     <h2>All Users</h2>
 
-    <?php if (!empty($tet)) : ?>
+        <pre>
+            <?php
+                print_r($tt);
+            ?>
+        </pre>
+
+    <?php if (!empty($users->users)) : ?>
         <table>
             <thead>
                 <tr>
@@ -63,16 +71,20 @@ $tet = $users->getAll();
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tet as $user) : ?>
+                <?php foreach ($users->users as $index => $user) : ?>
                     <tr>
-                        <td><?= htmlspecialchars($user['id']) ?></td>
+                        <td style="display: flex; align-items: baseline;">
+                            <?= $index+1 ?>
+                            <p> -- </p>
+                            <?= htmlspecialchars($user['id']) ?>
+                        </td>
                         <td><?= htmlspecialchars($user['first_name']) ?></td>
                         <td><?= htmlspecialchars($user['last_name']) ?></td>
                         <td><?= htmlspecialchars($user['email']) ?></td>
                         <td><?= htmlspecialchars($user['country']) ?></td>
                         <td><?= htmlspecialchars($user['created_at']) ?></td>
                         <td>
-                            <a href="edit.php?id=<?= $user['id'] ?>">
+                            <a href="update.php?id=<?= $user['id'] ?>">
                                 <button class="edit-btn">Edit</button>
                             </a>
                             <a href="Services/delete_user.php?id=<?= $user['id'] ?>">
