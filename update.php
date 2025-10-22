@@ -8,7 +8,7 @@ if (!isset($_GET['id'])) {
 $id = (int)$_GET['id'];
 
 $user = new User();
-$userData = $user->read($id);
+$userData = $user->get($id);
 
 if (!$userData) {
     die('User not found.');

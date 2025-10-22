@@ -5,7 +5,17 @@ $dbconnec = new DatabaseConnection('php-oop');
 $dbconnec->connect();
 
 $users = new User();
-$tt = $users->read('users', 17);
+$tt = $users->get(20);
+
+$fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'password',
+        'country',
+    ];
+
+// $fill = $users->fillable($fillable);
 
 
 ?>

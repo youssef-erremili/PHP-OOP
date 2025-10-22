@@ -12,15 +12,20 @@ class User extends Model implements StorableInterface
     private string $password;
 
     public array $users = [];
-    
-    /**
-     * @var string
-     */
+
+    private $fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'password',
+        'country',
+    ];
 
     private const MODEL_NAME = 'users';
 
     public function __construct()
     {
+        parent::__construct();
         $this->users = $this->getAll();
     }
 
@@ -67,62 +72,23 @@ class User extends Model implements StorableInterface
 
     public function getAll(): array
     {
-        $pdo = parent::establishConn();
-
-        try {
-            $statement = $pdo->query('SELECT * FROM users Where deleted_at IS NULL');
-            return $statement->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            throw new RuntimeException('Query failed: ' . $e->getMessage());
-        }
+        return parent::fetchAll(self::MODEL_NAME);
     }
 
-    public function create(array $data): mixed
+    public function save(array $data): bool|string
     {
-        $pdo = $this->establishConn();
-
-        try {
-            $sql = "INSERT INTO users (first_name, last_name, email, password, country, created_at, updated_at)
-                VALUES (:first_name, :last_name, :email, :password, :country, NOW(), NOW())";
-
-            $stmt = $pdo->prepare($sql);
-
-            $stmt->bindParam(':first_name', $data['first_name']);
-            $stmt->bindParam(':last_name', $data['last_name']);
-            $stmt->bindParam(':email', $data['email']);
-            $stmt->bindParam(':password', $data['password']);
-            $stmt->bindParam(':country', $data['country']);
-
-            $stmt->execute();
-
-            return $pdo->lastInsertId();
-        } catch (PDOException $e) {
-            throw new RuntimeException('Insert failed: ' . $e->getMessage());
-        }
+        return parent::create(self::MODEL_NAME, $data, $this->fillable);
     }
 
-    public function read(string $model = 'users', int $id, string $message = 'Desired User is not Found'): mixed
+    public function get(int $id, string $message = 'Desired User is not Found'): mixed
     {
-        return parent::read($model, $id, $message);
+        return parent::read($id, $model = self::MODEL_NAME, $message);
     }
 
 
-    public function update(int $id, array $data): string
+    public function edit(int $id, array $data): string
     {
-        $pdo = $this->establishConn();
-
-        $sql = "UPDATE users  SET first_name = :first_name, last_name = :last_name, email = :email, password = :password, country = :country, updated_at = NOW() WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':first_name' => $data['first_name'],
-            ':last_name' => $data['last_name'],
-            ':email' => $data['email'],
-            ':password' => $data['password'],
-            ':country' => $data['country'],
-            ':id' => $id,
-        ]);
-
-        return "User updated successfully.";
+        return parent::update(self::MODEL_NAME, $id, $data, $this->fillable);
     }
 
     public function delete(int $id): mixed

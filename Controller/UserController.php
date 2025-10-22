@@ -7,7 +7,7 @@ class UserController
     public function getUser($id): void
     {
         $user = new User();
-        $result = $user->read($id);
+        $result = $user->get($id);
 
         if ($result) {
             header("Location: /php-oop/index.php");
@@ -21,7 +21,7 @@ class UserController
     public function createUser(array $data): void
     {
         $user = new User();
-        $result = $user->create($data);
+        $result = $user->save($data);
 
         if ($result) {
             header("Location: /php-oop/index.php");
@@ -47,7 +47,7 @@ class UserController
     public function updateUser(int $id, array $data): void
     {
         $user = new User();
-        $result = $user->update($id, $data);
+        $result = $user->edit($id, $data);
 
         if ($result) {
             header("Location: /php-oop/index.php");
